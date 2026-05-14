@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosas que me encantan de ti</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #1a0e0a;
+    --fg: #fff5ee;
+    --muted: #c9a89a;
+    --accent: #ff6b6b;
+    --peach: #ffb5a7;
+    --gold: #ffd166;
+    --card: rgba(255,181,167,0.06);
+    --border: rgba(255,181,167,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Quicksand',sans-serif; background:var(--bg); color:var(--fg);
+    overflow-x:hidden; min-height:100vh;
+  }
+
+  /* Fondo animado */
+  .bg-blobs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .bg-blobs .blob { position:absolute; border-radius:50%; filter:blur(100px); opacity:0.2; animation:blobDrift 15s ease-in-out infinite alternate; }
+  .blob-1 { width:500px; height:500px; background:#ff6b6b; top:-150px; left:-100px; }
+  .blob-2 { width:400px; height:400px; background:#ffb5a7; bottom:-100px; right:-80px; animation-delay:-5s; }
+  .blob-3 { width:350px; height:350px; background:#ffd166; top:40%; left:40%; animation-delay:-10s; }
+  @keyframes blobDrift {
+    0%{transform:translate(0,0) scale(1)} 50%{transform:translate(40px,-30px) scale(1.1)} 100%{transform:translate(-20px,20px) scale(0.95)}
+  }
+
+  /* Confetti */
+  #confetti-canvas { position:fixed; inset:0; z-index:9999; pointer-events:none; }
+
+  /* Corazones flotantes */
+  .floating-hearts { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .fh { position:absolute; bottom:-30px; animation:floatUp linear forwards; pointer-events:none; }
+  @keyframes floatUp {
+    0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+    100%{opacity:0;transform:translateY(-105vh) rotate(360deg) scale(0.2)}
+  }
+
+  .content { position:relative; z-index:1; }
+
+  /* HERO */
+  .hero {
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:40px 24px; position:relative;
+  }
+  .hero-emoji { font-size:clamp(50px,12vw,80px); margin-bottom:20px; animation:heroBounce 2s ease-in-out infinite; }
+  @keyframes heroBounce { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-15px) rotate(5deg)} }
+  .hero h1 {
+    font-family:'Pacifico',cursive; font-size:clamp(2.2rem,7vw,4rem); line-height:1.15;
+    background:linear-gradient(135deg,var(--accent),var(--peach),var(--gold));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:16px;
+    animation:fadeUp .8s ease both;
+  }
+  .hero p {
+    font-size:clamp(1rem,2.5vw,1.2rem); color:var(--muted); max-width:480px;
+    line-height:1.7; margin-bottom:36px; animation:fadeUp .8s ease .2s both;
+  }
+  .hero-btn {
+    padding:16px 44px; border:none; border-radius:50px; cursor:pointer;
+    font-family:'Quicksand',sans-serif; font-size:17px; font-weight:700;
+    background:linear-gradient(135deg,var(--accent),#ff8fab); color:#fff;
+    transition:transform .3s,box-shadow .3s; animation:fadeUp .8s ease .4s both;
+  }
+  .hero-btn:hover { transform:translateY(-3px) scale(1.05); box-shadow:0 10px 40px rgba(255,107,107,.4); }
+  .hero-btn:active { transform:scale(.97); }
+  .scroll-hint { position:absolute; bottom:28px; color:var(--muted); font-size:22px; animation:bounce 2s ease infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SECCIÓN DE TARJETAS */
+  .cards-section {
+    max-width:900px; margin:0 auto; padding:40px 20px 100px;
+  }
+  .section-header { text-align:center; margin-bottom:48px; }
+  .section-header h2 {
+    font-family:'Pacifico',cursive; font-size:clamp(1.6rem,5vw,2.5rem);
+    background:linear-gradient(135deg,var(--peach),var(--gold));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;
+  }
+  .section-header p { color:var(--muted); font-size:1rem; }
+
+  /* Progreso */
+  .progress-bar-wrap {
+    max-width:360px; margin:24px auto 0; display:flex; align-items:center; gap:12px;
+  }
+  .progress-track { flex:1; height:10px; background:rgba(255,255,255,.08); border-radius:20px; overflow:hidden; }
+  .progress-fill { height:100%; width:0%; border-radius:20px; background:linear-gradient(90deg,var(--accent),var(--gold)); transition:width .6s cubic-bezier(.34,1.56,.64,1); }
+  .progress-text { font-size:13px; color:var(--muted); font-weight:700; white-space:nowrap; }
+
+  /* Grid de tarjetas */
+  .cards-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:28px; justify-items:center;
+  }
+
+  /* Tarjeta individual */
+  .scratch-card {
+    width:220px; height:270px; border-radius:24px; position:relative;
+    overflow:hidden; cursor:crosshair;
+    border:2px solid var(--border); transition:transform .4s,border-color .4s,box-shadow .4s;
+    background:var(--card);
+  }
+  .scratch-card:hover { transform:translateY(-4px); border-color:var(--peach); box-shadow:0 8px 30px rgba(255,181,167,.15); }
+  .scratch-card.revealed { border-color:var(--gold); box-shadow:0 8px 40px rgba(255,209,102,.2); cursor:default; }
+
+  /* Contenido oculto (premio) */
+  .card-prize {
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:24px; text-align:center;
+    background:linear-gradient(160deg,#2a1810,#1f110d);
+  }
+  .card-prize .prize-emoji { font-size:48px; margin-bottom:12px; animation:prizeFloat 3s ease-in-out infinite; }
+  @keyframes prizeFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .card-prize .prize-title {
+    font-size:1.25rem; font-weight:700; color:var(--gold); margin-bottom:8px;
+  }
+  .card-prize .prize-sub { font-size:.85rem; color:var(--muted); line-height:1.5; }
+
+  /* Canvas de rascar */
+  .scratch-canvas { position:absolute; top:0; left:0; border-radius:22px; z-index:2; }
+
+  /* Mensaje final */
+  .final-message {
+    text-align:center; padding:60px 24px; display:none;
+    animation:fadeUp 1s ease both;
+  }
+  .final-message.show { display:block; }
+  .final-message h2 {
+    font-family:'Pacifico',cursive; font-size:clamp(1.8rem,5vw,2.8rem);
+    background:linear-gradient(135deg,var(--accent),var(--gold));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:16px;
+  }
+  .final-message p { color:var(--muted); font-size:1.1rem; max-width:500px; margin:0 auto 12px; line-height:1.7; }
+  .final-message .final-big { font-size:80px; margin:24px 0; animation:heroBounce 2s ease-in-out infinite; }
+  .final-message .signature { font-family:'Pacifico',cursive; font-size:1.5rem; color:var(--accent); margin-top:20px; }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px);
+    background:linear-gradient(135deg,var(--accent),#ff8fab); color:#fff;
+    padding:12px 28px; border-radius:50px; font-weight:700; font-size:14px;
+    z-index:99999; transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 8px 30px rgba(255,107,107,.4);
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  @media(max-width:520px){
+    .cards-grid { grid-template-columns:1fr 1fr; gap:16px; }
+    .scratch-card { width:100%; height:240px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="floating-hearts" id="floatingHearts"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="content">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-emoji">🍑</div>
+    <h1>Cosas que me encantan de Juanita</h1>
+    <p>Rasca cada culito para descubrir lo que me tiene loquito por ti</p>
+    <button class="hero-btn" onclick="scrollToCards()">
+      <i class="fas fa-hand-sparkles"></i> Empezar a rascar
+    </button>
+    <div class="scroll-hint"><i class="fas fa-chevron-down"></i></div>
+  </section>
+
+  <!-- TARJETAS -->
+  <section class="cards-section" id="cardsSection">
+    <div class="section-header">
+      <h2>Rasca los culitos</h2>
+      <p>Cada uno esconde algo especial</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">0 / 9</div>
+      </div>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </section>
+
+  <!-- MENSAJE FINAL -->
+  <div class="final-message" id="finalMessage">
+    <div class="final-big">💖</div>
+    <h2>Y eso no es todo</h2>
+    <p>Esas son solo algunas de las cosas que me encantan de ti.</p>
+    <p>Te quiero muchoooo</p>
+    <div class="signature">Faridsito</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATOS ====================
+const cosas = [
+  { emoji:'👀', title:'Tus ojitos',   sub:'Esos ojitos que me enamoraron desde el primer dia' },
+  { emoji:'😊', title:'Tu sonrisa',   sub:'La sonrisa mas linda que existe en este planeta' },
+  { emoji:'🫂', title:'Tus abrazos',  sub:'El mejor lugar del mundo es entre tus brazos' },
+  { emoji:'💋', title:'Tus besitos',    sub:'Cada besito tuyo me hace querer mas y mas' },
+  { emoji:'😤', title:'Cuando te enojas', sub:'Hasta enojada te ves preciosa' },
+  { emoji:'🤗', title:'Tu risa',      sub:'Tu risa es lo que me hace feliz' },
+  { emoji:'💃', title:'Tus locuras',  sub:'Me haces reir sin parar' },
+  { emoji:'🥰', title:'Tu 🍑',    sub:'Adicto a tu 🍑😻' },
+  { emoji:'💖', title:'Todo de ti',   sub:'Absolutamente todo, sin excepcion, para siempre' },
+];
+
+// Paletas de colores para cada culito
+const paletas = [
+  { cheek:'#FFB5A7', highlight:'#FFD6C0', blush:'rgba(244,160,160,0.45)', shadow:'rgba(180,100,80,0.25)' },
+  { cheek:'#FFCDB2', highlight:'#FFE0CC', blush:'rgba(255,181,167,0.4)', shadow:'rgba(190,130,100,0.25)' },
+  { cheek:'#F5B893', highlight:'#FFD6B8', blush:'rgba(244,160,140,0.4)', shadow:'rgba(170,110,80,0.25)' },
+  { cheek:'#FFC0CB', highlight:'#FFE0E8', blush:'rgba(255,140,170,0.4)', shadow:'rgba(190,100,130,0.25)' },
+  { cheek:'#FFB5A7', highlight:'#FFD6C8', blush:'rgba(255,120,120,0.4)', shadow:'rgba(180,90,80,0.3)' },
+  { cheek:'#FFD6C0', highlight:'#FFECDA', blush:'rgba(255,181,167,0.4)', shadow:'rgba(190,140,110,0.25)' },
+  { cheek:'#F5B893', highlight:'#FFDAB8', blush:'rgba(244,160,140,0.35)', shadow:'rgba(170,110,80,0.2)' },
+  { cheek:'#FFC0CB', highlight:'#FFE4EC', blush:'rgba(255,150,180,0.4)', shadow:'rgba(190,110,140,0.25)' },
+  { cheek:'#FFB5A7', highlight:'#FFD8CA', blush:'rgba(255,130,130,0.4)', shadow:'rgba(180,90,80,0.3)' },
+];
+
+let revealedCount = 0;
+
+// ==================== CREAR TARJETAS ====================
+const grid = document.getElementById('cardsGrid');
+
+cosas.forEach((cosa, i) => {
+  // Contenedor
+  const card = document.createElement('div');
+  card.className = 'scratch-card';
+  card.id = 'card-' + i;
+
+  // Premio (contenido oculto)
+  const prize = document.createElement('div');
+  prize.className = 'card-prize';
+  prize.innerHTML = `
+    <div class="prize-emoji">${cosa.emoji}</div>
+    <div class="prize-title">${cosa.title}</div>
+    <div class="prize-sub">${cosa.sub}</div>
+  `;
+  card.appendChild(prize);
+
+  // Canvas
+  const canvas = document.createElement('canvas');
+  canvas.className = 'scratch-canvas';
+  canvas.width = 220;
+  canvas.height = 270;
+  card.appendChild(canvas);
+
+  grid.appendChild(card);
+
+  // Dibujar culito
+  drawCulito(canvas, paletas[i]);
+
+  // Eventos de rascar
+  setupScratch(canvas, card, i);
+});
+
+// ==================== DIBUJAR CULITO ====================
+function drawCulito(canvas, colors) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+
+  // Fondo de la tarjeta
+  ctx.fillStyle = '#221411';
+  roundRect(ctx, 0, 0, w, h, 22);
+  ctx.fill();
+
+  // Borde sutil
+  ctx.strokeStyle = 'rgba(255,181,167,0.12)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, 1, 1, w - 2, h - 2, 22);
+  ctx.stroke();
+
+  const cx = w / 2;
+  const cy = h * 0.40;
+  const r = w * 0.26;
+  const gap = r * 0.52;
+
+  // Sombra bajo los cachetes
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.beginPath(); ctx.arc(cx - gap, cy + 6, r + 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + gap, cy + 6, r + 3, 0, Math.PI * 2); ctx.fill();
+
+  // Cachete izquierdo
+  const lg = ctx.createRadialGradient(cx - gap - r * 0.2, cy - r * 0.25, r * 0.1, cx - gap, cy, r);
+  lg.addColorStop(0, colors.highlight);
+  lg.addColorStop(0.6, colors.cheek);
+  lg.addColorStop(1, darkenHex(colors.cheek, 30));
+  ctx.beginPath(); ctx.arc(cx - gap, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = lg; ctx.fill();
+
+  // Cachete derecho
+  const rg = ctx.createRadialGradient(cx + gap + r * 0.2, cy - r * 0.25, r * 0.1, cx + gap, cy, r);
+  rg.addColorStop(0, colors.highlight);
+  rg.addColorStop(0.6, colors.cheek);
+  rg.addColorStop(1, darkenHex(colors.cheek, 30));
+  ctx.beginPath(); ctx.arc(cx + gap, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = rg; ctx.fill();
+
+  // Línea central sutil
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r * 0.55);
+  ctx.quadraticCurveTo(cx + 1.5, cy + r * 0.1, cx, cy + r * 0.5);
+  ctx.strokeStyle = colors.shadow;
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // Rubor en cada cachete
+  const blushR = r * 0.32;
+  ctx.beginPath(); ctx.arc(cx - gap + r * 0.05, cy + r * 0.15, blushR, 0, Math.PI * 2);
+  ctx.fillStyle = colors.blush; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + gap - r * 0.05, cy + r * 0.15, blushR, 0, Math.PI * 2);
+  ctx.fillStyle = colors.blush; ctx.fill();
+
+  // Brillos
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.beginPath(); ctx.arc(cx - gap - r * 0.35, cy - r * 0.35, r * 0.1, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + gap - r * 0.35, cy - r * 0.35, r * 0.1, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx - gap - r * 0.2, cy - r * 0.45, r * 0.05, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + gap - r * 0.2, cy - r * 0.45, r * 0.05, 0, Math.PI * 2); ctx.fill();
+
+  // Corazones decorativos
+  drawTinyHeart(ctx, 28, 28, 7, 'rgba(255,107,107,0.7)');
+  drawTinyHeart(ctx, w - 28, 28, 7, 'rgba(255,107,107,0.7)');
+  drawTinyHeart(ctx, 28, h - 55, 5, 'rgba(255,209,102,0.5)');
+  drawTinyHeart(ctx, w - 28, h - 55, 5, 'rgba(255,209,102,0.5)');
+
+  // Destellos
+  drawSparkle(ctx, 50, h * 0.72, 6, 'rgba(255,209,102,0.6)');
+  drawSparkle(ctx, w - 50, h * 0.72, 6, 'rgba(255,209,102,0.6)');
+
+  // Texto "Rasca"
+  ctx.fillStyle = 'rgba(255,238,244,0.8)';
+  ctx.font = 'bold 15px Quicksand, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Rasca!', cx, h - 24);
+
+  // Emoji 🍑 pequeño
+  ctx.font = '16px sans-serif';
+  ctx.fillText('🍑', cx, h - 5);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawTinyHeart(ctx, x, y, size, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y + size * 0.3);
+  ctx.bezierCurveTo(x - size, y - size * 0.5, x - size * 0.5, y - size, x, y - size * 0.4);
+  ctx.bezierCurveTo(x + size * 0.5, y - size, x + size, y - size * 0.5, x, y + size * 0.3);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawSparkle(ctx, x, y, size, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y - size);
+  ctx.lineTo(x + size * 0.25, y - size * 0.25);
+  ctx.lineTo(x + size, y);
+  ctx.lineTo(x + size * 0.25, y + size * 0.25);
+  ctx.lineTo(x, y + size);
+  ctx.lineTo(x - size * 0.25, y + size * 0.25);
+  ctx.lineTo(x - size, y);
+  ctx.lineTo(x - size * 0.25, y - size * 0.25);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function darkenHex(hex, amount) {
+  let r = parseInt(hex.slice(1,3),16);
+  let g = parseInt(hex.slice(3,5),16);
+  let b = parseInt(hex.slice(5,7),16);
+  r = Math.max(0, r - amount);
+  g = Math.max(0, g - amount);
+  b = Math.max(0, b - amount);
+  return '#' + [r,g,b].map(c => c.toString(16).padStart(2,'0')).join('');
+}
+
+// ==================== MECÁNICA DE RASCAR ====================
+function setupScratch(canvas, card, index) {
+  const ctx = canvas.getContext('2d');
+  let isScratching = false;
+  let scratchCount = 0;
+  let isRevealed = false;
+
+  function doScratch(x, y) {
+    if (isRevealed) return;
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 18, 0, Math.PI * 2);
+    ctx.fill();
+    scratchCount++;
+    if (scratchCount > 40) {
+      revealCard(canvas, card, index);
+      isRevealed = true;
+    }
+  }
+
+  function getPos(e, touch) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = touch ? e.touches[0].clientX : e.clientX;
+    const clientY = touch ? e.touches[0].clientY : e.clientY;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+
+  canvas.addEventListener('mousedown', (e) => { isScratching = true; const p = getPos(e, false); doScratch(p.x, p.y); });
+  canvas.addEventListener('mouseup', () => { isScratching = false; });
+  canvas.addEventListener('mouseleave', () => { isScratching = false; });
+  canvas.addEventListener('mousemove', (e) => { if (!isScratching) return; const p = getPos(e, false); doScratch(p.x, p.y); });
+
+  canvas.addEventListener('touchstart', (e) => {
+    isScratching = true;
+    e.preventDefault();
+    const p = getPos(e, true);
+    doScratch(p.x, p.y);
+  }, { passive: false });
+  canvas.addEventListener('touchend', () => { isScratching = false; });
+  canvas.addEventListener('touchmove', (e) => {
+    if (!isScratching) return;
+    e.preventDefault();
+    const p = getPos(e, true);
+    doScratch(p.x, p.y);
+  }, { passive: false });
+}
+
+function revealCard(canvas, card, index) {
+  // Animación de desvanecimiento del canvas
+  canvas.style.transition = 'opacity .6s ease';
+  canvas.style.opacity = '0';
+  setTimeout(() => { canvas.style.display = 'none'; }, 600);
+
+  card.classList.add('revealed');
+
+  // Pequeña animación de rebote
+  card.style.transform = 'scale(1.08)';
+  setTimeout(() => { card.style.transform = ''; }, 400);
+
+  revealedCount++;
+  updateProgress();
+
+  // Toast
+  const cosa = cosas[index];
+  showToast(`${cosa.emoji} ${cosa.title}`);
+
+  // Mini confetti
+  launchConfetti(30);
+
+  // ¿Todos revelados?
+  if (revealedCount === cosas.length) {
+    setTimeout(showFinal, 1200);
+  }
+}
+
+// ==================== PROGRESO ====================
+function updateProgress() {
+  const pct = (revealedCount / cosas.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = revealedCount + ' / ' + cosas.length;
+}
+
+// ==================== MENSAJE FINAL ====================
+function showFinal() {
+  const fm = document.getElementById('finalMessage');
+  fm.classList.add('show');
+  fm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  launchConfetti(120);
+  setTimeout(() => launchConfetti(80), 600);
+  setTimeout(() => launchConfetti(60), 1200);
+}
+
+// ==================== CONFETTI ====================
+const confettiCanvas = document.getElementById('confetti-canvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+let confettiParts = [];
+let confettiRunning = false;
+
+function resizeConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeConfetti();
+window.addEventListener('resize', resizeConfetti);
+
+function launchConfetti(count) {
+  const colors = ['#ff6b6b','#ffb5a7','#ffd166','#ff8fab','#f4a0a0','#ff9a76','#06d6a0'];
+  for (let i = 0; i < count; i++) {
+    confettiParts.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -20 - Math.random() * 80,
+      w: Math.random() * 10 + 4,
+      h: Math.random() * 6 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 5,
+      vy: Math.random() * 4 + 2,
+      rot: Math.random() * 360,
+      rotV: (Math.random() - 0.5) * 12,
+      opacity: 1,
+    });
+  }
+  if (!confettiRunning) { confettiRunning = true; animateConfetti(); }
+}
+
+function animateConfetti() {
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiParts = confettiParts.filter(p => p.opacity > 0);
+  confettiParts.forEach(p => {
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rot * Math.PI / 180);
+    confettiCtx.globalAlpha = p.opacity;
+    confettiCtx.fillStyle = p.color;
+    confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    confettiCtx.restore();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.08;
+    p.rot += p.rotV;
+    p.opacity -= 0.004;
+  });
+  if (confettiParts.length > 0) {
+    requestAnimationFrame(animateConfetti);
+  } else {
+    confettiRunning = false;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+// ==================== CORAZONES FLOTANTES ====================
+const heartsEl = document.getElementById('floatingHearts');
+const heartChars = ['❤️','💖','💕','💗','✨','💫','🩷','🍑'];
+
+function spawnHeart() {
+  const h = document.createElement('div');
+  h.className = 'fh';
+  h.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+  h.style.left = Math.random() * 100 + '%';
+  h.style.fontSize = (14 + Math.random() * 18) + 'px';
+  h.style.animationDuration = (6 + Math.random() * 8) + 's';
+  heartsEl.appendChild(h);
+  setTimeout(() => h.remove(), 16000);
+}
+setInterval(spawnHeart, 2000);
+
+// ==================== TOAST ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ==================== NAVEGACIÓN ====================
+function scrollToCards() {
+  document.getElementById('cardsSection').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
